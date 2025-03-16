@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telegram Bot Text Receiver</title>
+    <style>
+        .container {
+            margin: 20px;
+            max-width: 600px;
+        }
+        #message-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        #copy-btn {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="message-input" readonly>
+        <button id="copy-btn" onclick="copyMessage()">Copy</button>
+    </div>
+
+    <script>
+        const BOT_TOKEN = "7761882929:AAHHSee5Nhy5YrQe0QBtXlSbgODCBjactR0";
+        const CHAT_ID = "6422634012";
+        const messageInput = document.getElementById("message-input");
+        let lastUpdateId = localStorage.getItem('lastUpdateId') || 0;
+
+        // পৃষ্ঠা লোড হলে পূর্বের মেসেজ দেখানো
+        window.onload = () => {
+            const savedMessage = localStorage.getItem('currentMessage');
+            if (savedMessage) {
+                messageInput.value = savedMessage;
+            }
+        };
+
+        async function fetchNewMessages() {
+            try {
+                const response = await fetch(
+                    `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`
+                );
+                const data = await response.json();
+
+                if (data.ok && data.result.length > 0) {
+                    const latestMessage = data.result[data.result.length - 1].message.text;
+                    const currentUpdateId = data.result[data.result.length - 1].update_id;
+
+                    // নতুন মেসেজ আসলে আপডেট করুন
+                    messageInput.value = latestMessage;
+                    localStorage.setItem('currentMessage', latestMessage);
+                    localStorage.setItem('lastUpdateId', currentUpdateId);
+                    lastUpdateId = currentUpdateId;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // মেসেজ কপি ফাংশন
+        function copyMessage() {
+            messageInput.select();
+            document.execCommand('copy');
+            
+            // নিশ্চিতকরণ মেসেজ (অপশনাল)
+            alert('Copied to clipboard!');
+            
+            /* Modern Clipboard API ব্যবহার করতে চাইলে:
+            navigator.clipboard.writeText(messageInput.value)
+                .then(() => alert('Copied!'))
+                .catch(err => console.error('Copy failed:', err));
+            */
+        }
+
+        // প্রতি 1 সেকেন্ডে চেক করুন
+        setInterval(fetchNewMessages, 1000);
+    </script>
+</body>
+</html>

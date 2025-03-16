@@ -1,0 +1,232 @@
+<!-- payment.html -->
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পেমেন্ট পৃষ্ঠা</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgb(226, 224, 224);
+            border-radius: 10px;
+            box-shadow:
+                3px 3px 6px rgba(0, 0, 0, 0.8),
+                6px 6px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .payment-steps {
+            margin-bottom: 2rem;
+        }
+
+        .step-box {
+            background: #fefffd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .copy-btn {
+            background: #d9dadb;
+            color: rgb(0, 0, 0);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .payment-form input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .home {
+            align-items: center;
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #2c3e50;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+            justify-content: center;
+            text-align: center;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* হোম আইকন তৈরি */
+        .home::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>');
+        }
+
+        /* হোভার ইফেক্ট */
+        .home:hover {
+            background: #e74c3c;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            align-items: center;
+            color: rgb(255, 255, 255);
+            background-color: rgb(27, 145, 31);
+            border-radius: 10px;
+            height: 35px;
+            width: 110px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .h22 {
+            align-items: center;
+            display: block;
+            margin: 0 auto;
+            color: #ffef08;
+            text-shadow:
+                3px 3px 6px rgba(0, 0, 0, 0.8),
+                6px 6px 12px rgba(0, 0, 0, 0.6);
+        }
+        /* সমস্ত CSS স্টাইল একই থাকবে */
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000; /* পপআপ সামনে আনতে */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-container">
+        <!-- ধাপ ১: পেমেন্ট নির্দেশনা -->
+        <div class="payment-steps">
+            <h2 class="h22">পেমেন্ট নির্দেশনা</h2>
+            <div class="step-box">
+                <p> নিচের নম্বরে <strong id="paymentAmount"></strong> টাকা সেন্ড মানি করুন:</p>
+                </br>
+                <div class="flex">
+                    <span id="paymentNumber">01821566054</span>
+                    <button class="copy-btn" onclick="copyNumber()">কপি করুন</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ধাপ ২: পেমেন্ট ফর্ম -->
+        <form class="payment-form" id="paymentForm">
+            <input type="hidden" id="amount" name="amount">
+            <p>আপনি যে নাম্বারে অফার টি নিতে সেই নম্বরটি নিচে দিন </p>
+            <input type="tel" id="mobile" placeholder="আপনার মোবাইল নম্বর (১১ ডিজিট)" pattern="[0-9]{11}" required>
+            <p>Transaction থেকে TrxID টি লিখুন </p>
+            <input type="text" id="txid" placeholder="TRXID লিখুন" required>
+            <input type="file" id="photo" name="photo" accept="image/*">
+            </br>
+            <button type="submit" class="btn">সাবমিট করুন</button>
+        </form>
+
+    </div>
+    <a href="index.html" class="home"></a>
+    <!-- সাফল্য পপআপ -->
+    <div class="success-popup" id="successPopup">
+        <h3>✅ পেমেন্ট সফল!</h3></br>
+        <p>আপনার পেমেন্ট টি আমরা পর্যালোচনা করে আপনাকে খুব দ্রুত অফারটি পাঠিয়ে দেয়া হবে</p></br>
+        <button onclick="window.location.href='index.html'" class="btn">হোম এ ফিরে যান</button>
+    </div>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // ফটো সংগ্রহ করুন
+            const photoFile = document.getElementById('photo').files[0];
+
+            // ডাটা অবজেক্ট তৈরি করুন
+            const formData = {
+                amount: this.amount.value,
+                mobile: this.mobile.value,
+                txid: this.txid.value,
+                photo: photoFile // ফটো ফাইল যুক্ত করুন
+            };
+
+            // টেলিগ্রাম বটে ডাটা ও ফটো পাঠান
+            sendToTelegramBot(formData);
+        });
+        async function sendToTelegramBot(data) {
+            const BOT_TOKEN = '7217909155:AAFXMS-9jkRRcCSf0HcrdIIrBYBIZ9a2y6o';
+            const CHAT_ID = '6422634012';
+            const message = `📢 নতুন পেমেন্ট!\nAmount: ${data.amount}\nMobile: ${data.mobile}\nTXID: ${data.txid}`;
+
+
+            // ফটো ও মেসেজ একসাথে পাঠান
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', data.photo); // ফটো ফাইল
+            formData.append('caption', message); // ক্যাপশন টেক্সট
+
+            // API কল করুন
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+        }
+        // বাকি ফাংশনগুলো একই থাকবে
+        function showSuccessPopup() {
+            document.getElementById('successPopup').style.display = 'block';
+        }
+
+        // হিস্ট্রি সেভ করুন
+        function saveToHistory(data) {
+            const history = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+            history.push({ ...data, date: new Date().toLocaleString() });
+            localStorage.setItem('paymentHistory', JSON.stringify(history));
+        }
+
+        // কপি বাটন
+        function copyNumber() {
+            navigator.clipboard.writeText('01821566054');
+            alert('নম্বর কপি হয়েছে!');
+        }
+
+        // সাফল্য পপআপ
+        function showSuccessPopup() {
+            document.getElementById('successPopup').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
